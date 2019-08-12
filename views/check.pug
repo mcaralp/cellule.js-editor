@@ -1,0 +1,11 @@
+script#checktemplate(type='text/x-template')
+    #check
+        p You requested to open an external sketch, but you were editing the following sketch. 
+            | If you continue, it will be deleted from your local storage.
+
+        .buttons 
+            a(v-on:click="open") Continue
+            a(v-on:click="cancel") Cancel
+
+        #oldSketch(v-bind:style="{height: height + 'px'}")
+        

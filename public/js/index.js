@@ -34,9 +34,10 @@ function renderPage(code)
 </html>`;
 }
 
-let appComponent = Vue.component('app', 
+
+let editorComponent = Vue.component('editor', 
 {
-    template: '#apptemplate',
+    template: '#editortemplate',
     
     data: function () { return {
         closed: false,
@@ -53,23 +54,20 @@ let appComponent = Vue.component('app',
         isClean: true,
         lastUpdate: 0,
         autoRestart: false,
-        sketch: defaultSketch,
-        render: renderPage(defaultSketch)
+        secondTabType: 0,
+        secondTab: false,
+        render: ''
     } },
 
-    created: function()
+    props: ['sketch'],
+
+    mounted: function()
     {
-        let oldSketch = localStorage.getItem('sketch');
         let oldX      = localStorage.getItem('popupX');
         let oldY      = localStorage.getItem('popupY');
         let oldWidth  = localStorage.getItem('popupWidth');
         let oldHeight = localStorage.getItem('popupHeight');
-        
-        if(oldSketch != null)
-        {
-            this.sketch = oldSketch;
-            this.render = renderPage(oldSketch);
-        }
+ 
 
         if(oldX != null && oldY != null)
         {
@@ -82,32 +80,48 @@ let appComponent = Vue.component('app',
             this.popupWidth  = parseFloat(oldWidth);
             this.popupHeight = parseFloat(oldHeight);
         }
-    },
 
-    mounted: function()
-    {
+
         this.$resizing = false;
         this.$moving   = false;
 
         this.$editor = ace.edit('text', {
             mode: "ace/mode/javascript",
-            selectionStyle: "text"
+            selectionStyle: "text",
         });
 
-        this.$editor.commands.addCommand({
-            name: "refresh",
-            bindKey: {win: "Ctrl-r", mac: "Command-r"},
-            exec: this.refresh
-        });
-
-        this.$editor.on('input', this.edit);
         this.$editor.setValue(this.sketch, -1);
         this.$editor.getSession().getUndoManager().reset();
         this.$editor.getSession().getUndoManager().markClean();
-        
+
+        this.$editor.on('input', this.edit);
+
+        this.render = renderPage(this.sketch);
+    },
+
+    beforeDestroy: function()
+    {
+        this.$editor.destroy();
     },
 
     methods: {
+        openSettings: function()
+        {
+            this.secondTab = true;
+            this.secondTabType = 0;
+        },
+
+        openPassword: function()
+        {
+            this.secondTab = true;
+            this.secondTabType = 1;
+        },
+
+        openText: function()
+        {
+            this.secondTab = false;
+        },
+
         resetPos: function()
         {
             this.popupX = 50;
@@ -229,18 +243,127 @@ let appComponent = Vue.component('app',
         closeEditor: function(e)
         {   
             this.closed = true;
+        },
+
+        copyLink: function()
+        {
+            navigator.clipboard.writeText(window.location.origin + '/#/src/' + btoa(this.$editor.getValue()));
+
         }
         
     }
 
 });
 
+let checkComponent = Vue.component('check', 
+{
+    template: '#checktemplate',
+    
+    data: function () { return {
+        sketch: localStorage.getItem('sketch'),
+        height: 400
+    } },
+
+    mounted: function()
+    {
+        this.$editor = ace.edit('oldSketch', {
+            mode: "ace/mode/javascript",
+            selectionStyle: "text",
+            readOnly: true
+        });
+
+        this.$editor.setValue(this.sketch, -1);
+        this.$editor.getSession().getUndoManager().reset();
+        this.$editor.getSession().getUndoManager().markClean();
+
+        this.height =
+                    this.$editor.getSession().getScreenLength()
+                  * this.$editor.renderer.lineHeight
+                  + this.$editor.renderer.scrollBar.getWidth();
+
+        setTimeout(() => this.$editor.resize(), 10);
+    },
+
+    beforeDestroy: function()
+    {
+        this.$editor.destroy();
+    },
+
+    methods: {
+        open: function()
+        {
+            localStorage.removeItem('sketch');
+            this.$router.go();
+        },
+
+        cancel: function()
+        {
+            this.$router.push('/');
+        }
+    }
+
+});
+
+let urlSketchComponent = Vue.component('urlsketch', 
+{
+    template: '#urlsketchtemplate',
+    data: function () { return {
+        loading: true,
+        check: false,
+        sketch: ''
+    } },
+    
+    components: {
+        editor: editorComponent,
+        check: checkComponent
+    },
+
+    created: function()
+    {
+        let oldSketch = localStorage.getItem('sketch');   
+        this.sketch = atob(this.$route.params.src);
+        if(oldSketch != null && oldSketch != this.sketch)
+        {
+            this.check = true;
+        }
+        this.loading = false;
+    }
+});
+
+
+let newSketchComponent = Vue.component('newsketch', 
+{
+    template: '#newsketchtemplate',
+    data: function () { return {
+        loading: true,
+        sketch: defaultSketch
+    } },
+
+    components: {
+        editor: editorComponent
+    },
+
+    created: function()
+    {
+        let oldSketch = localStorage.getItem('sketch');   
+        if(oldSketch != null)
+            this.sketch = oldSketch;
+        this.loading = false;
+    }
+});
+
+const routes = [
+    { path: '/',           component: newSketchComponent },
+    { path: '/src/:src',   component: urlSketchComponent }
+]
+
+
+const router = new VueRouter({
+    routes: routes
+});
 
 new Vue(
 {
     el:'#container',
-    components: 
-    {
-        appComponent: appComponent
-    }
+    router: router,
 });

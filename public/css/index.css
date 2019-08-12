@@ -18,6 +18,76 @@ body
     height: 100%;
 }
 
+#container #check
+{
+    background: rgba(240, 240, 240, 0.99);
+    width: calc(100% - 40px);
+    height: calc(100% - 40px);
+    padding: 20px;
+    overflow-y: auto;
+}
+
+
+#container #check p
+{
+    font-family: Tahoma, Geneva, sans-serif;
+    margin: 0 auto 20px;
+    padding: 20px;
+    color: #856404;
+    background: #fff3cd;
+    text-align: center;
+    width: calc(98% - 40px);
+    max-width: 500px;
+
+}
+
+#container #check #oldSketch
+{
+    height: 500px;
+    margin: auto;
+    width: calc(98% - 2px);
+    max-width: 538px;
+    border-radius: 5px;
+    border: 1px solid #ddd;
+}
+
+#container #check .buttons
+{
+    display: flex;
+    justify-content: center;
+    margin-bottom: 20px;
+}
+
+#container #check .buttons a
+{
+    display: block;
+    width: 150px;
+    font-family: Tahoma, Geneva, sans-serif;
+    background: white;
+    border-radius: 20px;
+    border: 1px solid #ddd;
+    padding: 10px;
+    text-align: center;
+    margin: 0 10px;
+    color: #555;
+    cursor: pointer;
+}
+
+#container #check .buttons a:active
+{
+    transform: translateY(2px);
+}
+
+#container #newsketch
+{
+    height: 100%;
+}
+
+#container #urlsketch
+{
+    height: 100%;
+}
+
 #container #app
 {
     width: 100%;
@@ -146,17 +216,48 @@ iframe
     stroke-linejoin: round;
 }
 
-#editor #text
+#editor #contents
 {
-    background: none;
+    overflow: hidden;
 }
 
-#editor #text .ace_gutter
+#editor #contents #widgets
+{
+    display: flex;
+    flex-wrap: nowrap;
+    width: 200%;
+    height: 100%;
+    transition: all 0.5s ease;
+}
+
+#editor #widgets.slideLeft
+{
+    transform: translateX(-50%);
+    transition: all 0.5s ease;
+}
+
+#editor #contents #widgets .widget
+{
+    width: 50%;
+}
+
+#editor #contents #widgets .widget#text
+{
+    background: none;
+    
+}
+
+#editor #contents #widgets .widget#settings
 {
     background: rgba(240, 240, 240, 0.99);
 }
 
-#editor #text .ace_scroller
+#editor #contents #widgets .widget#text .ace_gutter
+{
+    background: rgba(240, 240, 240, 0.99);
+}
+
+#editor #contents #widgets .widget#text .ace_scroller
 {
     background: rgba(255, 255, 255, 0.99);
 }

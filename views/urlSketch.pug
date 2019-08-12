@@ -1,0 +1,6 @@
+script#urlsketchtemplate(type='text/x-template')
+    #urlsketch
+        .loading(v-if="loading")
+        check(v-else-if="check")
+        editor(v-else v-bind:sketch="sketch")
+        

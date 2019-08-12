@@ -1,0 +1,5 @@
+script#newsketchtemplate(type='text/x-template')
+    #newsketch
+        .loading(v-if="loading")
+        editor(v-else v-bind:sketch="sketch")
+        

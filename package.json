@@ -10,9 +10,11 @@
   "license": "MIT",
   "dependencies": {
     "ace-builds": "^1.4.5",
-    "cellule.js": "^1.0.5",
+    "cellule.js": "^1.1.0",
     "express": "^4.17.1",
     "pug": "^2.0.4",
-    "vue": "^2.6.10"
+    "sqlite3": "^4.0.9",
+    "vue": "^2.6.10",
+    "vue-router": "^3.1.2"
   }
 }

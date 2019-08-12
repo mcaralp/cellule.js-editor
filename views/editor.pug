@@ -1,0 +1,89 @@
+script#editortemplate(type='text/x-template')
+    #app
+        
+        iframe(v-bind:srcdoc='stopped ? "" : render')
+        #editor(v-bind:style='{left: popupX + "px", top: popupY + "px"}' v-show='!closed')
+            h1
+                .text(v-on:dblclick="resetPos" v-on:mousedown="startMoveEditor") {{ name }}
+                a(v-on:click='closeEditor')
+                    svg
+                        use(xlink:href='/img/feather-sprite.svg#x')
+            #icons
+                a.tooltipContainer(v-if="stopped" v-on:click="toggleStopped")
+                    .tooltip Start the simulation.
+                    svg
+                        use(xlink:href='/img/feather-sprite.svg#play')
+                a.tooltipContainer(v-else v-on:click="toggleStopped")
+                    .tooltip Stop the simulation.
+                    svg
+                        use(xlink:href='/img/feather-sprite.svg#pause')
+
+
+                a.disabled(v-if="stopped")
+                    svg
+                        use(xlink:href='/img/feather-sprite.svg#refresh-cw')
+                a.tooltipContainer(v-else v-on:click="refresh")
+                    .tooltip Restart the simulation.
+                    svg
+                        use(xlink:href='/img/feather-sprite.svg#refresh-cw')
+
+
+                a.tooltipContainer(v-bind:class="{green: autoRestart}" v-on:click="toggleAutoRestart")
+                    .tooltip When the watcher is activated, the simulation is
+                        .br 
+                        |  automaticaly restarted when the sketch is updated.
+                    svg
+                        use(v-if="autoRestart" xlink:href='/img/feather-sprite.svg#eye')
+                        use(v-else xlink:href='/img/feather-sprite.svg#eye-off')
+
+                .space
+
+                //template(v-if="isClean")
+                    a.disabled
+                        svg
+                            use(xlink:href='/img/feather-sprite.svg#save')
+                //template(v-else)
+                    a
+                        svg
+                            use(xlink:href='/img/feather-sprite.svg#save')
+
+                a(v-if="hasUndo" v-on:click="undo")
+                    svg
+                        use(xlink:href='/img/feather-sprite.svg#chevron-left')
+                a.disabled(v-else)
+                    svg
+                        use(xlink:href='/img/feather-sprite.svg#chevron-left')
+
+
+                a(v-if="hasRedo" v-on:click="redo")
+                    svg
+                        use(xlink:href='/img/feather-sprite.svg#chevron-right')
+                a.disabled(v-else)
+                    svg
+                        use(xlink:href='/img/feather-sprite.svg#chevron-right')
+                    
+                .space
+
+            
+                //a(v-if="secondTab" v-on:click="openText")
+                    svg
+                        use(xlink:href='/img/feather-sprite.svg#edit')
+                //a(v-else v-on:click="openSettings")
+                    svg
+                        use(xlink:href='/img/feather-sprite.svg#settings')
+
+                a(v-on:click="copyLink")
+                    svg
+                        use(xlink:href='/img/feather-sprite.svg#link')
+
+                
+            #contents(v-bind:style='{width: popupWidth + "px", height: popupHeight + "px"}')        
+                #widgets(v-bind:class="{slideLeft: secondTab}")
+                    .widget#text
+                    .widget#settings
+            #footer
+                a(v-on:mousedown='startResizeEditor')
+                    svg
+                        use(xlink:href='/img/feather-sprite.svg#arrow-down-right')
+        #back(v-show='moving || resizing' v-on:mouseup='stop' 
+            v-on:mousemove='move' v-bind:style='{cursor: moving ? "move" : "nwse-resize"}')

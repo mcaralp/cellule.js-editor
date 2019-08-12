@@ -5,10 +5,14 @@ html(lang='en')
         title Cellular automata
         link(rel='stylesheet', href='/css/index.css')
         script(src='/js/vue/vue.min.js')
+        script(src='/js/vue-router/vue-router.min.js')
         script(src='/js/ace/ace.js')
     body
         #container
-            app
+            router-view
         
-        include app.pug
+        include editor.pug
+        include check.pug
+        include newSketch.pug
+        include urlSketch.pug
         script(src="/js/index.js")
