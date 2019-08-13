@@ -2,6 +2,10 @@ script#editortemplate(type='text/x-template')
     #app
         
         iframe(v-bind:srcdoc='stopped ? "" : render')
+        #openEditor(v-if="closed")
+            a(v-on:click='openEditor')
+                    svg
+                        use(xlink:href='/img/feather-sprite.svg#menu')
         #editor(v-bind:style='{left: popupX + "px", top: popupY + "px"}' v-show='!closed')
             h1
                 .text(v-on:dblclick="resetPos" v-on:mousedown="startMoveEditor") {{ name }}
@@ -47,7 +51,8 @@ script#editortemplate(type='text/x-template')
                         svg
                             use(xlink:href='/img/feather-sprite.svg#save')
 
-                a(v-if="hasUndo" v-on:click="undo")
+                a.tooltipContainer(v-if="hasUndo" v-on:click="undo")
+                    .tooltip Undo the last edit.
                     svg
                         use(xlink:href='/img/feather-sprite.svg#chevron-left')
                 a.disabled(v-else)
@@ -55,7 +60,8 @@ script#editortemplate(type='text/x-template')
                         use(xlink:href='/img/feather-sprite.svg#chevron-left')
 
 
-                a(v-if="hasRedo" v-on:click="redo")
+                a.tooltipContainer(v-if="hasRedo" v-on:click="redo")
+                    .tooltip Redo the last undoed edit.
                     svg
                         use(xlink:href='/img/feather-sprite.svg#chevron-right')
                 a.disabled(v-else)
@@ -72,7 +78,9 @@ script#editortemplate(type='text/x-template')
                     svg
                         use(xlink:href='/img/feather-sprite.svg#settings')
 
-                a(v-on:click="copyLink")
+                a.flashMessageContainer(v-on:click="copyLink")
+                    .flashMessage(v-bind:class="{hide: hideFlashMessage}")
+                        | Link copied in the clipboard.
                     svg
                         use(xlink:href='/img/feather-sprite.svg#link')
 

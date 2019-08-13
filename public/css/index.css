@@ -18,6 +18,41 @@ body
     height: 100%;
 }
 
+#container #openEditor
+{
+    position: fixed;
+    left: 20px;
+    top: 20px;
+}
+
+#container #openEditor a
+{
+    display: block;
+    width: 35px;
+    height: 35px;
+    margin-right: 5px;
+    background: rgba(240, 240, 240, 0.99);
+    border-radius: 3px;
+    cursor: pointer;
+}
+
+#container #openEditor a:active
+{
+    transform: translateY(2px);
+}
+
+#container #openEditor a svg
+{
+    margin: 7px;
+    width: 21px;
+    height: 21px;
+    fill: none;
+    stroke: #444;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+}
+
 #container #check
 {
     background: rgba(240, 240, 240, 0.99);
@@ -286,6 +321,38 @@ iframe
     stroke-width: 2;
     stroke-linecap: round;
     stroke-linejoin: round;
+}
+
+.flashMessageContainer
+{
+    position: relative;
+}
+
+.flashMessage
+{
+    opacity: 1;
+    position: absolute;
+    font-family: Tahoma, Geneva, sans-serif;
+    color: #444;
+    padding: 5px;
+    background: white;
+    font-size: 12px;
+    top: 15px;
+    left: 15px;
+    z-index: 9999;
+    white-space: nowrap;
+    -webkit-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+    -moz-box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+    box-shadow: 0px 0px 5px 0px rgba(0,0,0,0.75);
+    border-radius: 3px;
+
+}
+
+.flashMessage.hide
+{
+
+    transition: all 1s ease; 
+    opacity: 0;
 }
 
 .tooltipContainer

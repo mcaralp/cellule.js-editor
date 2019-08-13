@@ -56,7 +56,8 @@ let editorComponent = Vue.component('editor',
         autoRestart: false,
         secondTabType: 0,
         secondTab: false,
-        render: ''
+        render: '',
+        hideFlashMessage: true
     } },
 
     props: ['sketch'],
@@ -245,10 +246,16 @@ let editorComponent = Vue.component('editor',
             this.closed = true;
         },
 
+        openEditor: function(e)
+        {   
+            this.closed = false;
+        },
+
         copyLink: function()
         {
             navigator.clipboard.writeText(window.location.origin + '/#/src/' + btoa(this.$editor.getValue()));
-
+            this.hideFlashMessage = false;
+            setTimeout(() => this.hideFlashMessage = true, 100);
         }
         
     }
