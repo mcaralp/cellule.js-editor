@@ -7,7 +7,7 @@ const path    = require('path');
 app.set('view engine', 'pug');
 
 // app.use('/js/ca',  express.static(path.join(__dirname, '..', 'node_modules', 'cellule.js', 'dist')));
-app.use('/js/ca',         express.static(path.join(__dirname, '..', '..', 'cellule.js', 'dist')));
+app.use('/js/ca',         express.static(path.join(__dirname, '..', 'node_modules', 'cellule.js', 'dist')));
 app.use('/js/vue',        express.static(path.join(__dirname, '..', 'node_modules', 'vue', 'dist')));
 app.use('/js/vue-router', express.static(path.join(__dirname, '..', 'node_modules', 'vue-router', 'dist')));
 app.use('/js/ace',        express.static(path.join(__dirname, '..', 'node_modules', 'ace-builds', 'src-min')));
