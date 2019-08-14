@@ -11,6 +11,7 @@ app.use('/js/ca',         express.static(path.join(__dirname, '..', 'node_module
 app.use('/js/vue',        express.static(path.join(__dirname, '..', 'node_modules', 'vue', 'dist')));
 app.use('/js/vue-router', express.static(path.join(__dirname, '..', 'node_modules', 'vue-router', 'dist')));
 app.use('/js/ace',        express.static(path.join(__dirname, '..', 'node_modules', 'ace-builds', 'src-min')));
+app.use('/js/hammer',     express.static(path.join(__dirname, '..', 'node_modules', 'hammerjs')));
 app.use('/js',            express.static(path.join(__dirname, '..', 'public', 'js')));
 app.use('/css',           express.static(path.join(__dirname, '..', 'public', 'css')));
 app.use('/img',           express.static(path.join(__dirname, '..', 'public', 'img')));

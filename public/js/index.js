@@ -26,6 +26,7 @@ function renderPage(code)
 </head>
 
 <body>
+    <script src="/js/hammer/hammer.min.js"></script>
     <script src="/js/ca/ca.min.js"></script>
     <script src="/js/render.js"></script>
     <script>${code}</script>
@@ -40,14 +41,14 @@ let editorComponent = Vue.component('editor',
     template: '#editortemplate',
     
     data: function () { return {
-        closed: false,
+        closed: true,
         resizing: false,
         moving: false,
         name: 'New sketch',
-        popupX: 50,
-        popupY: 50,
-        popupWidth: 400, 
-        popupHeight: 400,
+        popupX: 0,
+        popupY: 0,
+        popupWidth: 0, 
+        popupHeight: 0,
         stopped: false,
         hasUndo: false,
         hasRedo: false,
@@ -64,40 +65,53 @@ let editorComponent = Vue.component('editor',
 
     mounted: function()
     {
-        let oldX      = localStorage.getItem('popupX');
-        let oldY      = localStorage.getItem('popupY');
-        let oldWidth  = localStorage.getItem('popupWidth');
-        let oldHeight = localStorage.getItem('popupHeight');
- 
-
-        if(oldX != null && oldY != null)
-        {
-            this.popupX      = parseFloat(oldX);
-            this.popupY      = parseFloat(oldY);
-        }
-
-        if(oldWidth != null && oldHeight != null)
-        {
-            this.popupWidth  = parseFloat(oldWidth);
-            this.popupHeight = parseFloat(oldHeight);
-        }
-
-
-        this.$resizing = false;
-        this.$moving   = false;
-
         this.$editor = ace.edit('text', {
             mode: "ace/mode/javascript",
             selectionStyle: "text",
         });
-
         this.$editor.setValue(this.sketch, -1);
         this.$editor.getSession().getUndoManager().reset();
         this.$editor.getSession().getUndoManager().markClean();
-
         this.$editor.on('input', this.edit);
 
+        this.$mcResize = new Hammer(this.$refs.resize);
+        this.$mcResize.on("pan", this.resize);
+        this.$mcResize.get('pan').set({ threshold: 0 });
+        this.$mcResize.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+
+        this.$mcMove = new Hammer(this.$refs.move);
+        this.$mcMove.on("pan", this.move);
+        this.$mcMove.get('pan').set({ threshold: 0 });
+        this.$mcMove.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+
+        this.$cursorX  = 0;
+        this.$cursorY  = 0;
+        this.$resizing = false;
+        this.$moving   = false;
+
         this.render = renderPage(this.sketch);
+
+        let oldX      = localStorage.getItem('popupX');
+        let oldY      = localStorage.getItem('popupY');
+        let oldWidth  = localStorage.getItem('popupWidth');
+        let oldHeight = localStorage.getItem('popupHeight');
+        let oldClosed = localStorage.getItem('popupClosed');
+ 
+        if(oldClosed && oldX != null && oldY != null && oldWidth != null && oldHeight != null)
+        {
+            this.popupX      = parseFloat(oldX);
+            this.popupY      = parseFloat(oldY);
+
+            this.popupWidth  = parseFloat(oldWidth);
+            this.popupHeight = parseFloat(oldHeight);
+            this.closed      = parseInt(oldClosed) == 1;
+
+            setTimeout(() => this.$editor.resize(), 10);
+        }
+        else 
+            this.resetPos();
+
+        
     },
 
     beforeDestroy: function()
@@ -123,12 +137,46 @@ let editorComponent = Vue.component('editor',
             this.secondTab = false;
         },
 
+        fullscreen : function()
+        {
+            let width = window.innerWidth;
+            let height = window.innerHeight;
+
+            this.popupWidth = width;
+            this.popupHeight = height - 100;
+            this.popupX = 0;
+            this.popupY = 0;
+
+            localStorage.setItem('popupWidth',  this.popupWidth);
+            localStorage.setItem('popupHeight', this.popupHeight);
+            localStorage.setItem('popupX', this.popupX);
+            localStorage.setItem('popupY', this.popupY);
+
+            setTimeout(() => this.$editor.resize(), 10);
+        },
+
         resetPos: function()
         {
-            this.popupX = 50;
-            this.popupY = 50;
-            this.popupWidth = 400;
-            this.popupHeight = 400;
+            let popupWidth = 400;
+            let margin = 20;
+            
+            if(window.innerWidth < popupWidth + margin * 2)
+            {
+                this.fullscreen();
+                return;
+            }
+
+            this.popupX = margin;
+            this.popupY = margin;
+            this.popupWidth = popupWidth;
+            this.popupHeight = popupWidth;
+
+            localStorage.setItem('popupWidth',  this.popupWidth);
+            localStorage.setItem('popupHeight', this.popupHeight);
+            localStorage.setItem('popupX', this.popupX);
+            localStorage.setItem('popupY', this.popupY);
+
+            setTimeout(() => this.$editor.resize(), 10);
         },
 
         redo: function()
@@ -174,37 +222,58 @@ let editorComponent = Vue.component('editor',
             this.stopped = !this.stopped;
         },
 
-        move: function(e)
+        resize: function(ev)
         {
-            let difX = e.pageX - this.$cursorX;
-            let difY = e.pageY - this.$cursorY;
+            let difX = ev.deltaX - this.$cursorX;
+            let difY = ev.deltaY - this.$cursorY;
 
-            this.$cursorX = e.pageX;
-            this.$cursorY = e.pageY;
+            this.$cursorX = ev.deltaX;
+            this.$cursorY = ev.deltaY;
+
+            let newWidth  = this.popupWidth + difX;
+            let newHeight = this.popupHeight + difY;
+            if(newWidth  < 320) newWidth  = 320;
+            if(newHeight < 20)  newHeight = 20;
+
+            this.popupWidth  = newWidth;
+            this.popupHeight = newHeight;
+
+            this.$editor.resize();
+
+            localStorage.setItem('popupWidth',  this.popupWidth);
+            localStorage.setItem('popupHeight', this.popupHeight);
             
-            if(this.moving)
+            if(ev.isFinal) 
             {
-                this.popupX = this.popupX + difX;
-                this.popupY = this.popupY + difY;
-
-                localStorage.setItem('popupX', this.popupX);
-                localStorage.setItem('popupY', this.popupY);
+                this.resizing = false;
+                this.$cursorX = 0;
+                this.$cursorY = 0;
             }
-            if(this.resizing)
+            else this.resizing = true;
+        },
+
+        move: function(ev)
+        {
+            let difX = ev.deltaX - this.$cursorX;
+            let difY = ev.deltaY - this.$cursorY;
+
+            this.$cursorX = ev.deltaX;
+            this.$cursorY = ev.deltaY;
+            
+            this.popupX = this.popupX + difX;
+            this.popupY = this.popupY + difY;
+
+            localStorage.setItem('popupX', this.popupX);
+            localStorage.setItem('popupY', this.popupY);
+
+            if(ev.isFinal) 
             {
-                let newWidth  = this.popupWidth + difX;
-                let newHeight = this.popupHeight + difY;
-                if(newWidth  < 320) newWidth  = 320;
-                if(newHeight < 20)  newHeight = 20;
-
-                this.popupWidth  = newWidth;
-                this.popupHeight = newHeight;
-
-                this.$editor.resize();
-
-                localStorage.setItem('popupWidth',  this.popupWidth);
-                localStorage.setItem('popupHeight', this.popupHeight);
+                this.moving = false;
+                this.$cursorX = 0;
+                this.$cursorY = 0;
             }
+            else this.moving = true;
+           
         },
 
         stop: function()
@@ -213,47 +282,24 @@ let editorComponent = Vue.component('editor',
             this.resizing = false;
         },
 
-        startMoveEditor: function(e)
-        {
-            if(this.$lastClick != undefined)
-            {
-                let now = Date.now();
-                if(now - this.$lastClick < 300)
-                {
-                    this.$lastClick = undefined;
-                    this.resetPos();
-                    return;
-                }
-            }
-            this.$lastClick = Date.now();
-
-            this.moving = true;
-
-            this.$cursorX = e.pageX;
-            this.$cursorY = e.pageY;
-        },
-
-        startResizeEditor: function(e)
-        {
-            this.resizing = true;
-
-            this.$cursorX = e.pageX;
-            this.$cursorY = e.pageY;
-        },
-
         closeEditor: function(e)
         {   
             this.closed = true;
+            localStorage.setItem('popupClosed', 1);
+            
         },
 
         openEditor: function(e)
         {   
+            localStorage.setItem('popupClosed', 0);
             this.closed = false;
+            this.resetPos();
         },
 
         copyLink: function()
         {
-            navigator.clipboard.writeText(window.location.origin + '/#/src/' + btoa(this.$editor.getValue()));
+            alert(navigator)
+           // navigator.clipboard.writeText(window.location.origin + '/#/src/' + btoa(this.$editor.getValue()));
             this.hideFlashMessage = false;
             setTimeout(() => this.hideFlashMessage = true, 100);
         }

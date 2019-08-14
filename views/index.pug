@@ -2,11 +2,13 @@ doctype html
 html(lang='en')
     head
         meta(charset='utf-8')
+        meta(name="viewport" content="width=device-width, initial-scale=1")
         title Cellular automata
         link(rel='stylesheet', href='/css/index.css')
         script(src='/js/vue/vue.min.js')
         script(src='/js/vue-router/vue-router.min.js')
         script(src='/js/ace/ace.js')
+        script(src='/js/hammer/hammer.min.js')
     body
         #container
             router-view

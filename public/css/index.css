@@ -21,9 +21,20 @@ body
 #container #openEditor
 {
     position: fixed;
-    left: 20px;
-    top: 20px;
+    left: 10px;
+    top: 10px;
+    opacity: 0;
+    visibility: hidden;
+    transition: 0.3s opacity ease;
 }
+
+#container #openEditor.show
+{
+    opacity: 1;
+    visibility: visible;
+    transition: 0.3s opacity ease;
+}
+
 
 #container #openEditor a
 {
@@ -150,8 +161,21 @@ iframe
 #editor
 {
     position: fixed;
+    opacity: 0;
+    visibility: hidden;
     border-radius: 3px;
+    transition: 0.3s ease opacity;
 }
+
+#editor.show
+{
+    position: fixed;
+    visibility: visible;
+    opacity: 1;
+    border-radius: 3px;
+    transition: 0.3s ease opacity;
+}
+
 
 #editor h1
 {
@@ -262,13 +286,13 @@ iframe
     flex-wrap: nowrap;
     width: 200%;
     height: 100%;
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
 }
 
 #editor #widgets.slideLeft
 {
     transform: translateX(-50%);
-    transition: all 0.5s ease;
+    transition: all 0.3s ease;
 }
 
 #editor #contents #widgets .widget
@@ -301,18 +325,18 @@ iframe
 {
     height: 20px;
     background: rgba(240, 240, 240, 0.99);
+    cursor: nwse-resize;
 }
 
-#editor #footer a
+#editor #footer span
 {
     display: block;
     float: right;
     height: 20px;
     width: 20px;
-    cursor: nwse-resize;
 }
 
-#editor #footer a svg
+#editor #footer span svg
 {
     width: 20px;
     height: 20px;

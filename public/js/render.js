@@ -9,6 +9,30 @@ window.addEventListener('load', () =>
     let canvas  = document.getElementsByTagName('canvas')[0];
     let cursorX = 0;
     let cursorY = 0;
+    let lastScale = 1;
+
+    let mcMouse = new Hammer(document.body);
+    mcMouse.on('pan', onPan.bind(this, 'mouse'));
+    mcMouse.on('panstart', onPanStart);
+    mcMouse.get('pan').set({ threshold: 0 });
+    mcMouse.get('pan').set({ pointers: 1 });
+    mcMouse.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+
+    let mcTouch = new Hammer(document.body);
+    mcTouch.on('pan', onPan.bind(this, 'touch'));
+    mcTouch.on('panstart', onPanStart);
+    mcTouch.get('pan').set({ threshold: 0 });
+    mcTouch.get('pan').set({ pointers: 2 });
+    mcTouch.get('pan').set({ direction: Hammer.DIRECTION_ALL });
+
+    let mcPinch = new Hammer(document.body);
+    mcPinch.on("pinch", onPinch);
+    mcPinch.on('pinchstart', onPinchStart);
+    mcPinch.get('pinch').set({ enable: true });
+
+    // let mcTap = new Hammer(document.body);
+    // mcPinch.on("tap", onDblClick);
+    // mcPinch.get('tap').set({ taps: 2 });
 
     if(oldY != null && oldX != null && oldWidth != null)
     {
@@ -24,8 +48,6 @@ window.addEventListener('load', () =>
     }
 
     document.body.addEventListener('wheel', onWheel);
-    document.body.addEventListener('mousedown', onMouseDown);
-    document.body.addEventListener('mouseup', onMouseUp);
     document.body.addEventListener('dblclick', onDblClick);
     
 
@@ -71,29 +93,44 @@ window.addEventListener('load', () =>
         center();
     }
 
-    function onMove(e)
+    function onPinchStart()
     {
-        x += e.clientX - cursorX;
-        y += e.clientY - cursorY;
+        lastScale = 1;
+    }
 
-        cursorX = e.clientX;
-        cursorY = e.clientY;
+    function onPinch(e)
+    {        
+        let centerX = (e.center.x - x) / scale;
+        let centerY = (e.center.y - y) / scale;
+        
+
+        scale += (e.scale - lastScale) * 2;
+        if(scale <= 0) scale = 0.01;
+        lastScale = e.scale;
+
+        x = -(centerX - e.center.x / scale) * scale;
+        y = -(centerY - e.center.y / scale) * scale;
 
         updatecanvas();
     }
 
-    function onMouseDown(e)
+    function onPanStart()
     {
-        cursorX = e.clientX;
-        cursorY = e.clientY;
-        document.body.addEventListener('mousemove', onMove);
-        document.body.style.cursor = 'move';
+        cursorX = 0;
+        cursorY = 0;
     }
 
-    function onMouseUp()
+    function onPan(type, e)
     {
-        document.body.removeEventListener('mousemove', onMove);
-        document.body.style.cursor = 'default';
+        if(type != e.pointerType) return;
+
+        x += e.deltaX - cursorX;
+        y += e.deltaY - cursorY;
+
+        cursorX = e.deltaX;
+        cursorY = e.deltaY;
+
+        updatecanvas();
     }
 
     function onWheel (e)
@@ -101,7 +138,6 @@ window.addEventListener('load', () =>
         let mouseX = (e.clientX - x) / scale;
         let mouseY = (e.clientY - y) / scale;
 
-        let scaling = e.deltaY < 0 ? -1 : 1;
         scale += 0.01 * e.deltaY;
         if(scale <= 0) scale = 0.01;
 

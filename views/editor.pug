@@ -2,13 +2,13 @@ script#editortemplate(type='text/x-template')
     #app
         
         iframe(v-bind:srcdoc='stopped ? "" : render')
-        #openEditor(v-if="closed")
+        #openEditor(v-bind:class="{show: closed}")
             a(v-on:click='openEditor')
                     svg
                         use(xlink:href='/img/feather-sprite.svg#menu')
-        #editor(v-bind:style='{left: popupX + "px", top: popupY + "px"}' v-show='!closed')
+        #editor(v-bind:style='{left: popupX + "px", top: popupY + "px"}' v-bind:class="{show: !closed}")
             h1
-                .text(v-on:dblclick="resetPos" v-on:mousedown="startMoveEditor") {{ name }}
+                .text(v-on:dblclick="fullscreen" ref="move") {{ name }}
                 a(v-on:click='closeEditor')
                     svg
                         use(xlink:href='/img/feather-sprite.svg#x')
@@ -89,9 +89,8 @@ script#editortemplate(type='text/x-template')
                 #widgets(v-bind:class="{slideLeft: secondTab}")
                     .widget#text
                     .widget#settings
-            #footer
-                a(v-on:mousedown='startResizeEditor')
+            #footer(ref="resize")
+                span
                     svg
                         use(xlink:href='/img/feather-sprite.svg#arrow-down-right')
-        #back(v-show='moving || resizing' v-on:mouseup='stop' 
-            v-on:mousemove='move' v-bind:style='{cursor: moving ? "move" : "nwse-resize"}')
+        #back(v-show='moving || resizing' v-bind:style='{cursor: moving ? "move" : "nwse-resize"}')
