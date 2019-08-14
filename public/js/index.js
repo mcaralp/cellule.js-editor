@@ -106,6 +106,16 @@ let editorComponent = Vue.component('editor',
             this.popupHeight = parseFloat(oldHeight);
             this.closed      = parseInt(oldClosed) == 1;
 
+            let width = window.innerWidth;
+            let height = window.innerHeight;
+
+            if(this.popupX < 0) this.popupX = 0;
+            if(this.popupY < 0) this.popupY = 0;
+            if(this.popupX + this.popupWidth >= width) 
+                this.popupWidth = width - this.popupX;
+            if(this.popupY + this.popupHeight + 100 >= height) 
+                this.popupHeight = height - (this.popupY + 100);
+
             setTimeout(() => this.$editor.resize(), 10);
         }
         else 
@@ -224,6 +234,9 @@ let editorComponent = Vue.component('editor',
 
         resize: function(ev)
         {
+            let width = window.innerWidth;
+            let height = window.innerHeight;
+
             let difX = ev.deltaX - this.$cursorX;
             let difY = ev.deltaY - this.$cursorY;
 
@@ -238,7 +251,12 @@ let editorComponent = Vue.component('editor',
             this.popupWidth  = newWidth;
             this.popupHeight = newHeight;
 
-            this.$editor.resize();
+            if(this.popupX + this.popupWidth >= width) 
+                this.popupWidth = width - this.popupX;
+            if(this.popupY + this.popupHeight + 100 >= height) 
+                this.popupHeight = height - (this.popupY + 100);
+
+            setTimeout(() => this.$editor.resize(), 10);
 
             localStorage.setItem('popupWidth',  this.popupWidth);
             localStorage.setItem('popupHeight', this.popupHeight);
@@ -254,6 +272,8 @@ let editorComponent = Vue.component('editor',
 
         move: function(ev)
         {
+            let width = window.innerWidth;
+            let height = window.innerHeight;
             let difX = ev.deltaX - this.$cursorX;
             let difY = ev.deltaY - this.$cursorY;
 
@@ -262,6 +282,11 @@ let editorComponent = Vue.component('editor',
             
             this.popupX = this.popupX + difX;
             this.popupY = this.popupY + difY;
+
+            if(this.popupX < 0) this.popupX = 0;
+            if(this.popupY < 0) this.popupY = 0;
+            if(this.popupX + this.popupWidth >= width) this.popupX = width - this.popupWidth;
+            if(this.popupY + this.popupHeight + 100 >= height) this.popupY = height - (this.popupHeight + 100);
 
             localStorage.setItem('popupX', this.popupX);
             localStorage.setItem('popupY', this.popupY);
