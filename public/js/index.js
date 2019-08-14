@@ -298,8 +298,7 @@ let editorComponent = Vue.component('editor',
 
         copyLink: function()
         {
-            alert(navigator)
-           // navigator.clipboard.writeText(window.location.origin + '/#/src/' + btoa(this.$editor.getValue()));
+            navigator.clipboard.writeText(window.location.origin + '/#/src/' + btoa(this.$editor.getValue()));
             this.hideFlashMessage = false;
             setTimeout(() => this.hideFlashMessage = true, 100);
         }
